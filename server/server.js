@@ -20,13 +20,13 @@ app.post('/list', async (req, res) => {
         "status": req.body.status
     })
     await newTask.save();
-    res.send('Task added successfully');
+    res.json('Task added successfully');
 })
 
 app.get('/list', async (req, res) => {
     try {
         // Fetch all records from the collection
-        const records = await Task.find({}).exec();
+        const records = await Task.find({});
     
         // Return the fetched records as JSON response
         res.json(records.map(record => ({
@@ -40,6 +40,10 @@ app.get('/list', async (req, res) => {
       }
 });
 
+// app.getItem('/list/:id', (req, res) => {
+//   res.json
+// })
+
 app.delete('/list/:id', async (req, res) => {
   try {
     const uid = req.params.id.toString();
@@ -48,21 +52,18 @@ app.delete('/list/:id', async (req, res) => {
     if (!uid || !mongoose.Types.ObjectId.isValid(uid)) {
       return res.status(400).json({ msg: 'Invalid or missing ID' });
     }
-
     // Convert uid to ObjectId
     const objectId = new mongoose.Types.ObjectId(uid);
-
     // Attempt to delete the document
     const result = await Task.deleteOne({ _id: objectId });
-
     if (result.deletedCount === 1) {
-      res.status(200).json({ msg: 'Document deleted successfully' });
+       res.status(200).json({ msg: 'Document deleted successfully' });
     } else {
-      res.status(404).json({ msg: 'No document found with the provided ID' });
+       res.status(404).json({ msg: 'No document found with the provided ID' });
     }
   } catch (err) {
     console.error('Error during deletion:', err); // Log the error details
-    res.status(500).json({ msg: 'Internal Server Error: ' + err.message });
+    return res.status(500).json({ msg: 'Internal Server Error: ' + err.message });
   }
 })
 
