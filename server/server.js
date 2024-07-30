@@ -25,24 +25,63 @@ app.post('/list', async (req, res) => {
 
 app.get('/list', async (req, res) => {
     try {
+        let queryoptions = {}
+        if(req.query.keyword){
+          queryoptions = {$or: [{"name": {"$regex": `${req.query.keyword}`,"$options": "i"}},{"status": {"$regex": `${req.query.keyword}`,"$options": "i"}}]}
+        }
+        console.log(queryoptions);
         // Fetch all records from the collection
-        const records = await Task.find({});
-    
+        const records = await Task.find(queryoptions);
         // Return the fetched records as JSON response
-        res.json(records.map(record => ({
-          id: record._id,
-          name: record.name,
-          status: record.status
-        })));
+        console.log("Get list data!")
+        res.json({
+          message: 'Fetch list successfully',
+          records: records.map(record => ({
+            id: record._id,
+            name: record.name,
+            status: record.status
+          }))
+        });
       } catch (error) {
         console.error('Error fetching records:', error);
         res.status(500).json({ error: 'Internal server error' });
       }
 });
 
-// app.getItem('/list/:id', (req, res) => {
-//   res.json
-// })
+app.put('/list/:id', async (req,res) => {
+  try{
+    const uid = req.params.id.toString();
+    const objectId = new mongoose.Types.ObjectId(uid);
+    const { name, status } = req.body;
+    await Task.findOneAndUpdate({ _id: objectId }, {
+      name, status
+    });
+    console.log("Item update successfully!")
+    res.json("Item Updated!")
+  }catch(err){
+    console.log(err)
+  }
+})
+
+app.get('/list/:id', async (req, res) => {
+  try{
+    const uid = req.params.id.toString();
+    const objectId = new mongoose.Types.ObjectId(uid);
+    const result = await Task.findOne({ _id: objectId });
+    console.log("Get data by ID success!")
+    if(result){
+      res.json({
+        name: result.name,
+        status: result.status
+      })
+    }else{
+      console.log("ID not found!")
+      res.json({});
+    }
+  }catch(err){
+    console.log(err)
+  }
+})
 
 app.delete('/list/:id', async (req, res) => {
   try {
@@ -63,7 +102,7 @@ app.delete('/list/:id', async (req, res) => {
     }
   } catch (err) {
     console.error('Error during deletion:', err); // Log the error details
-    return res.status(500).json({ msg: 'Internal Server Error: ' + err.message });
+    res.status(500).json({ msg: 'Internal Server Error: ' + err.message });
   }
 })
 
