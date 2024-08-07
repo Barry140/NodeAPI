@@ -11,10 +11,8 @@ app.use(express.urlencoded({ extended: true}))
 
 mongoose.connect('mongodb://localhost:27017/test_db');
 
-
 app.post('/list', async (req, res) => {
     console.log("POST METHOD")
-    console.log(req.body)
     const newTask = new Task({
         "name": req.body.name,
         "status": req.body.status
@@ -26,22 +24,31 @@ app.post('/list', async (req, res) => {
 app.get('/list', async (req, res) => {
     try {
         let queryoptions = {}
-        if(req.query.keyword){
-          queryoptions = {$or: [{"name": {"$regex": `${req.query.keyword}`,"$options": "i"}},{"status": {"$regex": `${req.query.keyword}`,"$options": "i"}}]}
-        }
+        if(req.query.keyword)  //search by keyword
+          {queryoptions = 
+            {$or: 
+              [ {"name": 
+                  {"$regex": `${req.query.keyword}`,"$options": "i"}},
+                {"status": 
+                  {"$regex": `${req.query.keyword}`,"$options": "i"}}
+              ]
+            } 
+           }
         console.log(queryoptions);
         // Fetch all records from the collection
         const records = await Task.find(queryoptions);
         // Return the fetched records as JSON response
         console.log("Get list data!")
-        res.json({
-          message: 'Fetch list successfully',
-          records: records.map(record => ({
-            id: record._id,
-            name: record.name,
-            status: record.status
-          }))
-        });
+        setTimeout(() => {
+          res.json({
+            message: 'Fetch list successfully',
+            records: records.map(record => ({  //Map values
+              id: record._id,
+              name: record.name,
+              status: record.status
+            }))
+          });
+        }, 4000);
       } catch (error) {
         console.error('Error fetching records:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -68,7 +75,7 @@ app.get('/list/:id', async (req, res) => {
     const uid = req.params.id.toString();
     const objectId = new mongoose.Types.ObjectId(uid);
     const result = await Task.findOne({ _id: objectId });
-    console.log("Get data by ID success!")
+    console.log("Get data by ID successfully!")
     if(result){
       res.json({
         name: result.name,
