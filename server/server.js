@@ -2,6 +2,8 @@ import express from 'express';
 import cors from "cors";
 import mongoose from 'mongoose'
 import Task from '../models/Task.js';
+import User from '../models/User.js';
+import bcrypt from "bcrypt";
 
 const app = express();
 const port = 3001;
@@ -21,7 +23,54 @@ app.post('/list', async (req, res) => {
     res.json('Task added successfully');
 })
 
-app.get('/list', async (req, res) => {
+app.post('/users', async (req, res) => {
+  const saltRounds = 5;
+  let data = {
+    ...req.body
+  };
+  
+  const salt = bcrypt.genSaltSync(saltRounds);
+   data.password = bcrypt.hashSync(data.password, salt);
+   const newUser = new User(data)
+  await  newUser.save();
+  setTimeout(() => {
+    res.json({
+      message: 'Register successfully'
+    })
+  }, 2000)
+})
+app.get('/users', async (req, res) => {
+  const records = await User.find();
+  console.log("Get User data!")
+  return res.json({
+    message: 'Fetch user successfully',
+    records: records.map(record => ({  //Map values
+      id: record._id,
+      firstname: record.firstname,
+      lastname: record.lastname,
+      email: record.email,
+      password: record.password
+    }))
+  });
+})
+
+app.post('/login', async (req, res) => {
+  const data = req.body;
+  const user = await User.findOne({ email: data.email });
+  bcrypt.compare(data.password, user.password, function(err, result) {
+    if(result) {
+      console.log("Login Successfully!")
+      res.json({
+        message: 'Login successfully'
+      })
+    }
+      else if(!result) res.json({
+        message: 'Login Failed'
+      })
+});
+})
+
+app.get('/list', async (req, res) => {    
     try {
         let queryoptions = {}
         if(req.query.keyword)  //search by keyword
@@ -48,7 +97,7 @@ app.get('/list', async (req, res) => {
               status: record.status
             }))
           });
-        }, 4000);
+        }, 1000);
       } catch (error) {
         console.error('Error fetching records:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -112,5 +161,6 @@ app.delete('/list/:id', async (req, res) => {
     res.status(500).json({ msg: 'Internal Server Error: ' + err.message });
   }
 })
+
 
 app.listen(port, () => console.log(`Server is listening at http://localhost:${port}`));
