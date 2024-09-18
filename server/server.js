@@ -37,12 +37,12 @@ app.post('/users', async (req, res) => {
     await  newUser.save();
     setTimeout(() => {
       res.json({
-        message: 'Register successfully'
+        message: 'success'
       })
-    }, 2000)
+    }, 4000)
   }else{
     res.json({
-      message: 'Email created!'
+      message: 'created email'
     })
   }
   
@@ -69,12 +69,11 @@ app.post('/login', async (req, res) => {
     if(result) {
       console.log("Login Successfully!")
       res.json({
-        message: 'Login successfully'
+        message: 'login success'
       })
-    }
-      else if(!result) res.json({
+    }else if(!result) res.json({
         message: 'Login Failed'
-      })
+    })
 });
 })
 
