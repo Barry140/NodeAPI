@@ -28,16 +28,24 @@ app.post('/users', async (req, res) => {
   let data = {
     ...req.body
   };
-  
-  const salt = bcrypt.genSaltSync(saltRounds);
-   data.password = bcrypt.hashSync(data.password, salt);
-   const newUser = new User(data)
-  await  newUser.save();
-  setTimeout(() => {
+    
+  const user = await User.findOne({ email: data.email });
+  if(!user){
+    const salt = bcrypt.genSaltSync(saltRounds);
+    data.password = bcrypt.hashSync(data.password, salt);
+    const newUser = new User(data)
+    await  newUser.save();
+    setTimeout(() => {
+      res.json({
+        message: 'Register successfully'
+      })
+    }, 2000)
+  }else{
     res.json({
-      message: 'Register successfully'
+      message: 'Email created!'
     })
-  }, 2000)
+  }
+  
 })
 app.get('/users', async (req, res) => {
   const records = await User.find();
