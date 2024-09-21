@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: true}))
 
-mongoose.connect('mongodb://localhost:27017/test_db');
+mongoose.connect('mongodb+srv://takiyogoha:9IojnswMUoqe6zQz@cluster0.hbcgf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 
 app.all('/', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -75,12 +75,11 @@ app.post('/login', async (req, res) => {
     if(result) {
       console.log("Login Successfully!")
       res.json({
-        message: 'Login successfully'
+        message: 'login success'
       })
-    }
-      else if(!result) res.json({
+    }else if(!result) res.json({
         message: 'Login Failed'
-      })
+    })
 });
 })
 
