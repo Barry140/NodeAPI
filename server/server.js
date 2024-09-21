@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: true}))
 
-mongoose.connect('mongodb://localhost:27017/test_db');
+mongoose.connect('mongodb+srv://takiyogoha:9IojnswMUoqe6zQz@cluster0.hbcgf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 
 app.post('/list', async (req, res) => {
     console.log("POST METHOD")
