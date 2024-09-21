@@ -13,6 +13,12 @@ app.use(express.urlencoded({ extended: true}))
 
 mongoose.connect('mongodb://localhost:27017/test_db');
 
+app.all('/', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next()
+});
+
 app.post('/list', async (req, res) => {
     console.log("POST METHOD")
     const newTask = new Task({
@@ -28,16 +34,24 @@ app.post('/users', async (req, res) => {
   let data = {
     ...req.body
   };
-  
-  const salt = bcrypt.genSaltSync(saltRounds);
-   data.password = bcrypt.hashSync(data.password, salt);
-   const newUser = new User(data)
-  await  newUser.save();
-  setTimeout(() => {
-    res.json({
-      message: 'Register successfully'
+  //check Email if created
+  const user = await User.findOne({ email: data.email });
+  if(!user){
+    const salt = bcrypt.genSaltSync(saltRounds);
+    data.password = bcrypt.hashSync(data.password, salt);
+ 
+    const newUser = new User(data)
+    await  newUser.save();
+    setTimeout(() => {
+      res.json({
+        message: 'Register successfully'
+      })
+   }, 1000)
+  }else{
+    res.status(200).json({
+      message: "Email exists!"
     })
-  }, 2000)
+  }
 })
 app.get('/users', async (req, res) => {
   const records = await User.find();
