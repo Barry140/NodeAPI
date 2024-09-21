@@ -13,12 +13,6 @@ app.use(express.urlencoded({ extended: true}))
 
 mongoose.connect('mongodb+srv://takiyogoha:9IojnswMUoqe6zQz@cluster0.hbcgf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 
-app.all('/', function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  next()
-});
-
 app.post('/list', async (req, res) => {
     console.log("POST METHOD")
     const newTask = new Task({
